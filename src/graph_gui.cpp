@@ -7,7 +7,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file graph_gui.cpp GUI that shows performance graphs. */
+ /** @file graph_gui.cpp GUI that shows performance graphs. */
 
 #include "stdafx.h"
 #include "graph_gui.h"
@@ -166,12 +166,12 @@ struct ValuesInterval {
 
 struct BaseGraphWindow : Window {
 protected:
-	static const int GRAPH_MAX_DATASETS     =  64;
+	static const int GRAPH_MAX_DATASETS = 128;
 	static const int GRAPH_AXIS_LINE_COLOUR = PC_BLACK;
-	static const int GRAPH_NUM_MONTHS       =  24; ///< Number of months displayed in the graph.
+	static const int GRAPH_NUM_MONTHS = 24; ///< Number of months displayed in the graph.
 
-	static const int MIN_GRAPH_NUM_LINES_Y  =   9; ///< Minimal number of horizontal lines to draw.
-	static const int MIN_GRID_PIXEL_SIZE    =  20; ///< Minimum distance between graph lines.
+	static const int MIN_GRAPH_NUM_LINES_Y = 9; ///< Minimal number of horizontal lines to draw.
+	static const int MIN_GRID_PIXEL_SIZE = 20; ///< Minimum distance between graph lines.
 
 	uint64 excluded_data; ///< bitmask of the datasets that shouldn't be displayed.
 	byte num_dataset;
@@ -206,7 +206,7 @@ protected:
 
 		ValuesInterval current_interval;
 		current_interval.highest = INT64_MIN;
-		current_interval.lowest  = INT64_MAX;
+		current_interval.lowest = INT64_MAX;
 
 		for (int i = 0; i < this->num_dataset; i++) {
 			if (HasBit(this->excluded_data, i)) continue;
@@ -215,17 +215,17 @@ protected:
 
 				if (datapoint != INVALID_DATAPOINT) {
 					current_interval.highest = max(current_interval.highest, datapoint);
-					current_interval.lowest  = min(current_interval.lowest, datapoint);
+					current_interval.lowest = min(current_interval.lowest, datapoint);
 				}
 			}
 		}
 
 		/* Prevent showing values too close to the graph limits. */
 		current_interval.highest = (11 * current_interval.highest) / 10;
-		current_interval.lowest =  (11 * current_interval.lowest) / 10;
+		current_interval.lowest = (11 * current_interval.lowest) / 10;
 
 		/* Always include zero in the shown range. */
-		double abs_lower  = (current_interval.lowest > 0) ? 0 : (double)abs(current_interval.lowest);
+		double abs_lower = (current_interval.lowest > 0) ? 0 : (double)abs(current_interval.lowest);
 		double abs_higher = (current_interval.highest < 0) ? 0 : (double)current_interval.highest;
 
 		int num_pos_grids;
@@ -243,7 +243,8 @@ protected:
 			int64 grid_size_higher = (abs_higher > 0) ? ((int64)abs_higher + num_pos_grids - 1) / num_pos_grids : 0;
 			int64 grid_size_lower = (abs_lower > 0) ? ((int64)abs_lower + num_hori_lines - num_pos_grids - 1) / (num_hori_lines - num_pos_grids) : 0;
 			grid_size = max(grid_size_higher, grid_size_lower);
-		} else {
+		}
+		else {
 			/* If both values are zero, show an empty graph. */
 			num_pos_grids = num_hori_lines / 2;
 			grid_size = 1;
@@ -283,7 +284,7 @@ protected:
 	 * Actually draw the graph.
 	 * @param r the rectangle of the data field of the graph
 	 */
-	void DrawGraph(Rect r) const
+	virtual void DrawGraph(Rect r) const
 	{
 		uint x, y;               ///< Reused whenever x and y coordinates are needed.
 		ValuesInterval interval; ///< Interval that contains all of the graph data.
@@ -298,10 +299,10 @@ protected:
 
 		/* Rect r will be adjusted to contain just the graph, with labels being
 		 * placed outside the area. */
-		r.top    += 5 + GetCharacterHeight(FS_SMALL) / 2;
+		r.top += 5 + GetCharacterHeight(FS_SMALL) / 2;
 		r.bottom -= (this->month == 0xFF ? 1 : 3) * GetCharacterHeight(FS_SMALL) + 4;
-		r.left   += 9;
-		r.right  -= 5;
+		r.left += 9;
+		r.right -= 5;
 
 		/* Initial number of horizontal lines. */
 		int num_hori_lines = 160 / MIN_GRID_PIXEL_SIZE;
@@ -379,7 +380,7 @@ protected:
 			x = r.left;
 			y = r.bottom + 2;
 			byte month = this->month;
-			Year year  = this->year;
+			Year year = this->year;
 			for (int i = 0; i < this->num_on_x_axis; i++) {
 				SetDParam(0, month + STR_MONTH_ABBREV_JAN);
 				SetDParam(1, month + STR_MONTH_ABBREV_JAN + 2);
@@ -393,7 +394,8 @@ protected:
 				}
 				x += x_sep;
 			}
-		} else {
+		}
+		else {
 			/* Draw the label under the data point rather than on the grid line. */
 			x = r.left;
 			y = r.bottom + 2;
@@ -417,7 +419,7 @@ protected:
 				/* Centre the dot between the grid lines. */
 				x = r.left + (x_sep / 2);
 
-				byte colour  = this->colours[i];
+				byte colour = this->colours[i];
 				uint prev_x = INVALID_DATAPOINT_POS;
 				uint prev_y = INVALID_DATAPOINT_POS;
 
@@ -442,7 +444,8 @@ protected:
 						/* Handle negative values differently (don't shift sign) */
 						if (datapoint < 0) {
 							datapoint = -(abs(datapoint) >> reduce_range);
-						} else {
+						}
+						else {
 							datapoint >>= reduce_range;
 						}
 						y = r.top + x_axis_offset - ((r.bottom - r.top) * datapoint) / (interval_size >> reduce_range);
@@ -455,7 +458,8 @@ protected:
 
 						prev_x = x;
 						prev_y = y;
-					} else {
+					}
+					else {
 						prev_x = INVALID_DATAPOINT_POS;
 						prev_y = INVALID_DATAPOINT_POS;
 					}
@@ -468,8 +472,8 @@ protected:
 
 
 	BaseGraphWindow(WindowDesc *desc, int widget, StringID format_str_y_axis) :
-			Window(desc),
-			format_str_y_axis(format_str_y_axis)
+		Window(desc),
+		format_str_y_axis(format_str_y_axis)
 	{
 		SetWindowDirty(WC_GRAPH_LEGEND, 0);
 		this->num_vert_lines = 24;
@@ -493,7 +497,7 @@ public:
 
 		if (this->month != 0xFF) {
 			byte month = this->month;
-			Year year  = this->year;
+			Year year = this->year;
 			for (int i = 0; i < this->num_on_x_axis; i++) {
 				SetDParam(0, month + STR_MONTH_ABBREV_JAN);
 				SetDParam(1, month + STR_MONTH_ABBREV_JAN + 2);
@@ -506,7 +510,8 @@ public:
 					year++;
 				}
 			}
-		} else {
+		}
+		else {
 			/* Draw the label under the data point rather than on the grid line. */
 			SetDParamMaxValue(0, this->x_values_start + this->num_on_x_axis * this->x_values_increment, 0, FS_SMALL);
 			x_label_width = GetStringBoundingBox(STR_GRAPH_Y_LABEL_NUMBER).width;
@@ -516,7 +521,7 @@ public:
 		SetDParam(1, INT64_MAX);
 		uint y_label_width = GetStringBoundingBox(STR_GRAPH_Y_LABEL).width;
 
-		size->width  = max<uint>(size->width,  5 + y_label_width + this->num_on_x_axis * (x_label_width + 5) + 9);
+		size->width = max<uint>(size->width, 5 + y_label_width + this->num_on_x_axis * (x_label_width + 5) + 9);
 		size->height = max<uint>(size->height, 5 + (1 + MIN_GRAPH_NUM_LINES_Y * 2 + (this->month != 0xFF ? 3 : 1)) * FONT_HEIGHT_SMALL + 4);
 		size->height = max<uint>(size->height, size->width / 3);
 	}
@@ -559,7 +564,7 @@ public:
 	 * Update the statistics.
 	 * @param initialize Initialize the data structure.
 	 */
-	void UpdateStatistics(bool initialize)
+	virtual void UpdateStatistics(bool initialize)
 	{
 		CompanyMask excluded_companies = _legend_excluded_companies;
 
@@ -582,7 +587,7 @@ public:
 		}
 
 		if (!initialize && this->excluded_data == excluded_companies && this->num_on_x_axis == nums &&
-				this->year == yr && this->month == mo) {
+			this->year == yr && this->month == mo) {
 			/* There's no reason to get new stats */
 			return;
 		}
@@ -610,13 +615,294 @@ public:
 };
 
 
+/**************************/
+/* COMPANY ECONOMY WINDOW */
+/**************************/
+
+struct CompanyEconomyGraphWindow : BaseGraphWindow {
+
+	int scroll_widget;
+	Scrollbar *scroll;
+
+	CompanyEconomyGraphWindow(WindowDesc *desc, int graphwidget, StringID format_str_y_axis) :
+		BaseGraphWindow(desc, graphwidget, format_str_y_axis)
+	{
+		this->num_vert_lines = 24;
+
+	}
+
+	void InitScrollbar(int scrollwidget)
+	{
+		this->scroll_widget = scrollwidget;
+		this->scroll = this->GetScrollbar(this->scroll_widget);
+		this->scroll->SetCapacity(24);
+	}
+
+	/**
+	* Actually draw the graph.
+	* @param r the rectangle of the data field of the graph
+	*/
+	virtual void DrawGraph(Rect r) const
+	{
+		uint x, y;               ///< Reused whenever x and y coordinates are needed.
+		ValuesInterval interval; ///< Interval that contains all of the graph data.
+		int x_axis_offset;       ///< Distance from the top of the graph to the x axis.
+
+								 /* the colours and cost array of GraphDrawer must accommodate
+								 * both values for cargo and companies. So if any are higher, quit */
+		assert_compile(GRAPH_MAX_DATASETS >= (int)NUM_CARGO && GRAPH_MAX_DATASETS >= (int)MAX_COMPANIES);
+		assert(this->num_vert_lines > 0);
+
+		byte grid_colour = _colour_gradient[COLOUR_GREY][4];
+
+		/* Rect r will be adjusted to contain just the graph, with labels being
+		* placed outside the area. */
+		r.top += 5 + GetCharacterHeight(FS_SMALL) / 2;
+		r.bottom -= (this->month == 0xFF ? 1 : 3) * GetCharacterHeight(FS_SMALL) + 4;
+		r.left += 9;
+		r.right -= 5;
+
+		/* Initial number of horizontal lines. */
+		int num_hori_lines = 160 / MIN_GRID_PIXEL_SIZE;
+		/* For the rest of the height, the number of horizontal lines will increase more slowly. */
+		int resize = (r.bottom - r.top - 160) / (2 * MIN_GRID_PIXEL_SIZE);
+		if (resize > 0) num_hori_lines += resize;
+
+		interval = GetValuesInterval(num_hori_lines);
+
+		int label_width = GetYLabelWidth(interval, num_hori_lines);
+
+		r.left += label_width;
+
+		int x_sep = (r.right - r.left) / this->num_vert_lines;
+		int y_sep = (r.bottom - r.top) / num_hori_lines;
+
+		/* Redetermine right and bottom edge of graph to fit with the integer
+		* separation values. */
+		r.right = r.left + x_sep * this->num_vert_lines;
+		r.bottom = r.top + y_sep * num_hori_lines;
+
+		OverflowSafeInt64 interval_size = interval.highest + abs(interval.lowest);
+		/* Where to draw the X axis. Use floating point to avoid overflowing and results of zero. */
+		x_axis_offset = (int)((r.bottom - r.top) * (double)interval.highest / (double)interval_size);
+
+		/* Draw the vertical grid lines. */
+
+		/* Don't draw the first line, as that's where the axis will be. */
+		x = r.left + x_sep;
+
+		for (int i = 0; i < this->num_vert_lines; i++) {
+			GfxFillRect(x, r.top, x, r.bottom, grid_colour);
+			x += x_sep;
+		}
+
+		/* Draw the horizontal grid lines. */
+		y = r.bottom;
+
+		for (int i = 0; i < (num_hori_lines + 1); i++) {
+			GfxFillRect(r.left - 3, y, r.left - 1, y, GRAPH_AXIS_LINE_COLOUR);
+			GfxFillRect(r.left, y, r.right, y, grid_colour);
+			y -= y_sep;
+		}
+
+		/* Draw the y axis. */
+		GfxFillRect(r.left, r.top, r.left, r.bottom, GRAPH_AXIS_LINE_COLOUR);
+
+		/* Draw the x axis. */
+		y = x_axis_offset + r.top;
+		GfxFillRect(r.left, y, r.right, y, GRAPH_AXIS_LINE_COLOUR);
+
+		/* Find the largest value that will be drawn. */
+		if (this->num_on_x_axis == 0) return;
+
+		assert(this->num_on_x_axis > 0);
+		assert(this->num_dataset > 0);
+
+		/* draw text strings on the y axis */
+		int64 y_label = interval.highest;
+		int64 y_label_separation = abs(interval.highest - interval.lowest) / num_hori_lines;
+
+		y = r.top - GetCharacterHeight(FS_SMALL) / 2;
+
+		for (int i = 0; i < (num_hori_lines + 1); i++) {
+			SetDParam(0, this->format_str_y_axis);
+			SetDParam(1, y_label);
+			DrawString(r.left - label_width - 4, r.left - 4, y, STR_GRAPH_Y_LABEL, graph_axis_label_colour, SA_RIGHT);
+
+			y_label -= y_label_separation;
+			y += y_sep;
+		}
+
+		int num_data = min(GRAPH_NUM_MONTHS, this->num_on_x_axis);
+
+		int x_start = this->scroll->GetPosition();
+		int x_end = x_start + num_data;
+
+		/* draw strings on the x axis */
+		if (this->month != 0xFF) {
+			x = r.left;
+			y = r.bottom + 2;
+			byte month = (this->month + 3 * x_start)%12;
+			Year year = this->year + x_start / 4;
+			for (int i = x_start; i < x_end; i++) {
+				SetDParam(0, month + STR_MONTH_ABBREV_JAN);
+				SetDParam(1, month + STR_MONTH_ABBREV_JAN + 2);
+				SetDParam(2, year);
+				DrawStringMultiLine(x, x + x_sep, y, this->height, month == 0 ? STR_GRAPH_X_LABEL_MONTH_YEAR : STR_GRAPH_X_LABEL_MONTH, graph_axis_label_colour);
+
+				month += 3;
+				if (month >= 12) {
+					month = 0;
+					year++;
+				}
+				x += x_sep;
+			}
+		}
+		else {
+			/* Draw the label under the data point rather than on the grid line. */
+			x = r.left;
+			y = r.bottom + 2;
+			uint16 label = this->x_values_start;
+
+			for (int i = x_start; i < x_end; i++) {
+				SetDParam(0, label);
+				DrawString(x + 1, x + x_sep - 1, y, STR_GRAPH_Y_LABEL_NUMBER, graph_axis_label_colour, SA_HOR_CENTER);
+
+				label += this->x_values_increment;
+				x += x_sep;
+			}
+		}
+
+		/* draw lines and dots */
+		uint linewidth = _settings_client.gui.graph_line_thickness;
+		uint pointoffs1 = (linewidth + 1) / 2;
+		uint pointoffs2 = linewidth + 1 - pointoffs1;
+		for (int i = 0; i < this->num_dataset; i++) {
+			if (!HasBit(this->excluded_data, i)) {
+				/* Centre the dot between the grid lines. */
+				x = r.left + (x_sep / 2);
+
+				byte colour = this->colours[i];
+				uint prev_x = INVALID_DATAPOINT_POS;
+				uint prev_y = INVALID_DATAPOINT_POS;
+
+				for (int j = x_start; j < x_end; j++) {
+					OverflowSafeInt64 datapoint = this->cost[i][j];
+
+					if (datapoint != INVALID_DATAPOINT) {
+						/*
+						* Check whether we need to reduce the 'accuracy' of the
+						* datapoint value and the highest value to split overflows.
+						* And when 'drawing' 'one million' or 'one million and one'
+						* there is no significant difference, so the least
+						* significant bits can just be removed.
+						*
+						* If there are more bits needed than would fit in a 32 bits
+						* integer, so at about 31 bits because of the sign bit, the
+						* least significant bits are removed.
+						*/
+						int mult_range = FindLastBit(x_axis_offset) + FindLastBit(abs(datapoint));
+						int reduce_range = max(mult_range - 31, 0);
+
+						/* Handle negative values differently (don't shift sign) */
+						if (datapoint < 0) {
+							datapoint = -(abs(datapoint) >> reduce_range);
+						}
+						else {
+							datapoint >>= reduce_range;
+						}
+						y = r.top + x_axis_offset - ((r.bottom - r.top) * datapoint) / (interval_size >> reduce_range);
+
+						/* Draw the point. */
+						GfxFillRect(x - pointoffs1, y - pointoffs1, x + pointoffs2, y + pointoffs2, colour);
+
+						/* Draw the line connected to the previous point. */
+						if (prev_x != INVALID_DATAPOINT_POS) GfxDrawLine(prev_x, prev_y, x, y, colour, linewidth);
+
+						prev_x = x;
+						prev_y = y;
+					}
+					else {
+						prev_x = INVALID_DATAPOINT_POS;
+						prev_y = INVALID_DATAPOINT_POS;
+					}
+
+					x += x_sep;
+				}
+			}
+		}
+	}
+
+	/**
+	* Update the statistics.
+	* @param initialize Initialize the data structure.
+	*/
+	virtual void UpdateStatistics(bool initialize)
+	{
+
+		CompanyMask excluded_companies = _legend_excluded_companies;
+
+		/* Exclude the companies which aren't valid */
+		for (CompanyID c = COMPANY_FIRST; c < MAX_COMPANIES; c++) {
+			if (!Company::IsValidID(c)) SetBit(excluded_companies, c);
+		}
+
+		byte nums = 0;
+		byte amounts = 0;
+		const Company *c;
+		FOR_ALL_COMPANIES(c) {
+			nums = max(nums, c->num_valid_stat_ent);
+		}
+
+
+		if (this->scroll != NULL) {
+			this->scroll->SetCount(nums);
+			//this->scroll->SetPosition(nums - this->scroll->GetCapacity());
+		}
+
+
+		int mo = (_cur_month / 3 - nums) * 3;
+		int yr = _cur_year;
+		while (mo < 0) {
+			yr--;
+			mo += 12;
+		}
+
+		if (!initialize && this->excluded_data == excluded_companies && this->num_on_x_axis == nums &&
+			this->year == yr && this->month == mo) {
+			/* There's no reason to get new stats */
+			return;
+		}
+
+		this->excluded_data = excluded_companies;
+		this->num_on_x_axis = nums;
+		this->year = yr;
+		this->month = mo;
+
+		int numd = 0;
+		for (CompanyID k = COMPANY_FIRST; k < MAX_COMPANIES; k++) {
+			c = Company::GetIfValid(k);
+			if (c != NULL) {
+				this->colours[numd] = _colour_gradient[c->colour][6];
+				for (int j = this->num_on_x_axis, i = 0; --j >= 0;) {
+					this->cost[numd][i] = (j >= c->num_valid_stat_ent) ? INVALID_DATAPOINT : GetGraphData(c, j);
+					i++;
+				}
+			}
+			numd++;
+		}
+
+		this->num_dataset = numd;
+	}
+};
+
 /********************/
 /* OPERATING PROFIT */
 /********************/
 
 struct OperatingProfitGraphWindow : BaseGraphWindow {
 	OperatingProfitGraphWindow(WindowDesc *desc, WindowNumber window_number) :
-			BaseGraphWindow(desc, WID_CV_GRAPH, STR_JUST_CURRENCY_SHORT)
+		BaseGraphWindow(desc, WID_CV_GRAPH, STR_JUST_CURRENCY_SHORT)
 	{
 		this->InitializeWindow(window_number);
 	}
@@ -667,7 +953,7 @@ void ShowOperatingProfitGraph()
 
 struct IncomeGraphWindow : BaseGraphWindow {
 	IncomeGraphWindow(WindowDesc *desc, WindowNumber window_number) :
-			BaseGraphWindow(desc, WID_CV_GRAPH, STR_JUST_CURRENCY_SHORT)
+		BaseGraphWindow(desc, WID_CV_GRAPH, STR_JUST_CURRENCY_SHORT)
 	{
 		this->InitializeWindow(window_number);
 	}
@@ -716,7 +1002,7 @@ void ShowIncomeGraph()
 
 struct DeliveredCargoGraphWindow : BaseGraphWindow {
 	DeliveredCargoGraphWindow(WindowDesc *desc, WindowNumber window_number) :
-			BaseGraphWindow(desc, WID_CV_GRAPH, STR_JUST_COMMA)
+		BaseGraphWindow(desc, WID_CV_GRAPH, STR_JUST_COMMA)
 	{
 		this->InitializeWindow(window_number);
 	}
@@ -765,7 +1051,7 @@ void ShowDeliveredCargoGraph()
 
 struct PerformanceHistoryGraphWindow : BaseGraphWindow {
 	PerformanceHistoryGraphWindow(WindowDesc *desc, WindowNumber window_number) :
-			BaseGraphWindow(desc, WID_PHG_GRAPH, STR_JUST_COMMA)
+		BaseGraphWindow(desc, WID_PHG_GRAPH, STR_JUST_COMMA)
 	{
 		this->InitializeWindow(window_number);
 	}
@@ -819,11 +1105,13 @@ void ShowPerformanceHistoryGraph()
 /* COMPANY VALUE */
 /*****************/
 
-struct CompanyValueGraphWindow : BaseGraphWindow {
+struct CompanyValueGraphWindow : CompanyEconomyGraphWindow {
+
 	CompanyValueGraphWindow(WindowDesc *desc, WindowNumber window_number) :
-			BaseGraphWindow(desc, WID_CV_GRAPH, STR_JUST_CURRENCY_SHORT)
+		CompanyEconomyGraphWindow(desc, WID_CV_GRAPH, STR_JUST_CURRENCY_SHORT)
 	{
 		this->InitializeWindow(window_number);
+		this->InitScrollbar(WID_CV_H_SCROLL);
 	}
 
 	virtual OverflowSafeInt64 GetGraphData(const Company *c, int j)
@@ -843,7 +1131,12 @@ static const NWidgetPart _nested_company_value_graph_widgets[] = {
 	EndContainer(),
 	NWidget(WWT_PANEL, COLOUR_GREY, WID_CV_BACKGROUND),
 		NWidget(NWID_HORIZONTAL),
-			NWidget(WWT_EMPTY, COLOUR_GREY, WID_CV_GRAPH), SetMinimalSize(576, 224), SetFill(1, 1), SetResize(1, 1),
+			NWidget(NWID_VERTICAL),
+				NWidget(WWT_EMPTY, COLOUR_GREY, WID_CV_GRAPH), SetMinimalSize(576, 224), SetFill(1, 1), SetResize(1, 1),
+				NWidget(NWID_SELECTION, INVALID_COLOUR, WID_CV_SHOW_H_SCROLL),
+					NWidget(NWID_HSCROLLBAR, COLOUR_GREY, WID_CV_H_SCROLL),
+				EndContainer(),
+			EndContainer(),
 			NWidget(NWID_VERTICAL),
 				NWidget(NWID_SPACER), SetFill(0, 1), SetResize(0, 1),
 				NWidget(WWT_RESIZEBOX, COLOUR_GREY, WID_CV_RESIZE),
@@ -871,13 +1164,13 @@ void ShowCompanyValueGraph()
 struct PaymentRatesGraphWindow : BaseGraphWindow {
 	bool first_init; ///< This value is true until the first initialization of the window has finished.
 	PaymentRatesGraphWindow(WindowDesc *desc, WindowNumber window_number) :
-			BaseGraphWindow(desc, WID_CPR_GRAPH, STR_JUST_CURRENCY_SHORT)
+		BaseGraphWindow(desc, WID_CPR_GRAPH, STR_JUST_CURRENCY_SHORT)
 	{
 		this->first_init = true;
 		this->num_on_x_axis = 20;
 		this->num_vert_lines = 20;
 		this->month = 0xFF;
-		this->x_values_start     = 10;
+		this->x_values_start = 10;
 		this->x_values_increment = 10;
 
 		/* Initialise the dataset */
@@ -964,37 +1257,37 @@ struct PaymentRatesGraphWindow : BaseGraphWindow {
 	virtual void OnClick(Point pt, int widget, int click_count)
 	{
 		switch (widget) {
-			case WID_CPR_ENABLE_CARGOES:
-				/* Remove all cargoes from the excluded lists. */
-				_legend_excluded_cargo = 0;
-				this->excluded_data = 0;
-				this->UpdateLoweredWidgets();
-				this->SetDirty();
-				break;
+		case WID_CPR_ENABLE_CARGOES:
+			/* Remove all cargoes from the excluded lists. */
+			_legend_excluded_cargo = 0;
+			this->excluded_data = 0;
+			this->UpdateLoweredWidgets();
+			this->SetDirty();
+			break;
 
-			case WID_CPR_DISABLE_CARGOES: {
-				/* Add all cargoes to the excluded lists. */
-				int i = 0;
-				const CargoSpec *cs;
-				FOR_ALL_SORTED_STANDARD_CARGOSPECS(cs) {
-					SetBit(_legend_excluded_cargo, cs->Index());
-					SetBit(this->excluded_data, i);
-					i++;
-				}
-				this->UpdateLoweredWidgets();
-				this->SetDirty();
-				break;
+		case WID_CPR_DISABLE_CARGOES: {
+			/* Add all cargoes to the excluded lists. */
+			int i = 0;
+			const CargoSpec *cs;
+			FOR_ALL_SORTED_STANDARD_CARGOSPECS(cs) {
+				SetBit(_legend_excluded_cargo, cs->Index());
+				SetBit(this->excluded_data, i);
+				i++;
 			}
+			this->UpdateLoweredWidgets();
+			this->SetDirty();
+			break;
+		}
 
-			default:
-				if (widget >= WID_CPR_CARGO_FIRST) {
-					int i = widget - WID_CPR_CARGO_FIRST;
-					ToggleBit(_legend_excluded_cargo, _sorted_cargo_specs[i]->Index());
-					this->ToggleWidgetLoweredState(widget);
-					this->UpdateExcludedData();
-					this->SetDirty();
-				}
-				break;
+		default:
+			if (widget >= WID_CPR_CARGO_FIRST) {
+				int i = widget - WID_CPR_CARGO_FIRST;
+				ToggleBit(_legend_excluded_cargo, _sorted_cargo_specs[i]->Index());
+				this->ToggleWidgetLoweredState(widget);
+				this->UpdateExcludedData();
+				this->SetDirty();
+			}
+			break;
 		}
 	}
 
@@ -1180,11 +1473,11 @@ public:
 		uint y = r.top + WD_FRAMERECT_TOP - icon_y_offset;
 
 		bool rtl = _current_text_dir == TD_RTL;
-		uint ordinal_left  = rtl ? r.right - WD_FRAMERECT_LEFT - this->ordinal_width : r.left + WD_FRAMERECT_LEFT;
+		uint ordinal_left = rtl ? r.right - WD_FRAMERECT_LEFT - this->ordinal_width : r.left + WD_FRAMERECT_LEFT;
 		uint ordinal_right = rtl ? r.right - WD_FRAMERECT_LEFT : r.left + WD_FRAMERECT_LEFT + this->ordinal_width;
-		uint icon_left     = r.left + WD_FRAMERECT_LEFT + WD_FRAMERECT_RIGHT + (rtl ? this->text_width : this->ordinal_width);
-		uint text_left     = rtl ? r.left + WD_FRAMERECT_LEFT : r.right - WD_FRAMERECT_LEFT - this->text_width;
-		uint text_right    = rtl ? r.left + WD_FRAMERECT_LEFT + this->text_width : r.right - WD_FRAMERECT_LEFT;
+		uint icon_left = r.left + WD_FRAMERECT_LEFT + WD_FRAMERECT_RIGHT + (rtl ? this->text_width : this->ordinal_width);
+		uint text_left = rtl ? r.left + WD_FRAMERECT_LEFT : r.right - WD_FRAMERECT_LEFT - this->text_width;
+		uint text_right = rtl ? r.left + WD_FRAMERECT_LEFT + this->text_width : r.right - WD_FRAMERECT_LEFT;
 
 		for (uint i = 0; i != this->companies.Length(); i++) {
 			const Company *c = this->companies[i];
@@ -1256,7 +1549,8 @@ public:
 		if (data == 0) {
 			/* This needs to be done in command-scope to enforce rebuilding before resorting invalid data */
 			this->companies.ForceRebuild();
-		} else {
+		}
+		else {
 			this->companies.ForceResort();
 		}
 	}
@@ -1324,58 +1618,58 @@ struct PerformanceRatingDetailWindow : Window {
 	virtual void UpdateWidgetSize(int widget, Dimension *size, const Dimension &padding, Dimension *fill, Dimension *resize)
 	{
 		switch (widget) {
-			case WID_PRD_SCORE_FIRST:
-				this->bar_height = FONT_HEIGHT_NORMAL + 4;
-				size->height = this->bar_height + 2 * WD_MATRIX_TOP;
+		case WID_PRD_SCORE_FIRST:
+			this->bar_height = FONT_HEIGHT_NORMAL + 4;
+			size->height = this->bar_height + 2 * WD_MATRIX_TOP;
 
-				uint score_info_width = 0;
-				for (uint i = SCORE_BEGIN; i < SCORE_END; i++) {
-					score_info_width = max(score_info_width, GetStringBoundingBox(STR_PERFORMANCE_DETAIL_VEHICLES + i).width);
-				}
-				SetDParamMaxValue(0, 1000);
-				score_info_width += GetStringBoundingBox(STR_BLACK_COMMA).width + WD_FRAMERECT_LEFT;
+			uint score_info_width = 0;
+			for (uint i = SCORE_BEGIN; i < SCORE_END; i++) {
+				score_info_width = max(score_info_width, GetStringBoundingBox(STR_PERFORMANCE_DETAIL_VEHICLES + i).width);
+			}
+			SetDParamMaxValue(0, 1000);
+			score_info_width += GetStringBoundingBox(STR_BLACK_COMMA).width + WD_FRAMERECT_LEFT;
 
-				SetDParamMaxValue(0, 100);
-				this->bar_width = GetStringBoundingBox(STR_PERFORMANCE_DETAIL_PERCENT).width + 20; // Wide bars!
+			SetDParamMaxValue(0, 100);
+			this->bar_width = GetStringBoundingBox(STR_PERFORMANCE_DETAIL_PERCENT).width + 20; // Wide bars!
 
-				/* At this number we are roughly at the max; it can become wider,
-				 * but then you need at 1000 times more money. At that time you're
-				 * not that interested anymore in the last few digits anyway.
-				 * The 500 is because 999 999 500 to 999 999 999 are rounded to
-				 * 1 000 M, and not 999 999 k. Use negative numbers to account for
-				 * the negative income/amount of money etc. as well. */
-				int max = -(999999999 - 500);
+			/* At this number we are roughly at the max; it can become wider,
+			 * but then you need at 1000 times more money. At that time you're
+			 * not that interested anymore in the last few digits anyway.
+			 * The 500 is because 999 999 500 to 999 999 999 are rounded to
+			 * 1 000 M, and not 999 999 k. Use negative numbers to account for
+			 * the negative income/amount of money etc. as well. */
+			int max = -(999999999 - 500);
 
-				/* Scale max for the display currency. Prior to rendering the value
-				 * is converted into the display currency, which may cause it to
-				 * raise significantly. We need to compensate for that since {{CURRCOMPACT}}
-				 * is used, which can produce quite short renderings of very large
-				 * values. Otherwise the calculated width could be too narrow.
-				 * Note that it doesn't work if there was a currency with an exchange
-				 * rate greater than max.
-				 * When the currency rate is more than 1000, the 999 999 k becomes at
-				 * least 999 999 M which roughly is equally long. Furthermore if the
-				 * exchange rate is that high, 999 999 k is usually not enough anymore
-				 * to show the different currency numbers. */
-				if (_currency->rate < 1000) max /= _currency->rate;
-				SetDParam(0, max);
-				SetDParam(1, max);
-				uint score_detail_width = GetStringBoundingBox(STR_PERFORMANCE_DETAIL_AMOUNT_CURRENCY).width;
+			/* Scale max for the display currency. Prior to rendering the value
+			 * is converted into the display currency, which may cause it to
+			 * raise significantly. We need to compensate for that since {{CURRCOMPACT}}
+			 * is used, which can produce quite short renderings of very large
+			 * values. Otherwise the calculated width could be too narrow.
+			 * Note that it doesn't work if there was a currency with an exchange
+			 * rate greater than max.
+			 * When the currency rate is more than 1000, the 999 999 k becomes at
+			 * least 999 999 M which roughly is equally long. Furthermore if the
+			 * exchange rate is that high, 999 999 k is usually not enough anymore
+			 * to show the different currency numbers. */
+			if (_currency->rate < 1000) max /= _currency->rate;
+			SetDParam(0, max);
+			SetDParam(1, max);
+			uint score_detail_width = GetStringBoundingBox(STR_PERFORMANCE_DETAIL_AMOUNT_CURRENCY).width;
 
-				size->width = 7 + score_info_width + 5 + this->bar_width + 5 + score_detail_width + 7;
-				uint left  = 7;
-				uint right = size->width - 7;
+			size->width = 7 + score_info_width + 5 + this->bar_width + 5 + score_detail_width + 7;
+			uint left = 7;
+			uint right = size->width - 7;
 
-				bool rtl = _current_text_dir == TD_RTL;
-				this->score_info_left  = rtl ? right - score_info_width : left;
-				this->score_info_right = rtl ? right : left + score_info_width;
+			bool rtl = _current_text_dir == TD_RTL;
+			this->score_info_left = rtl ? right - score_info_width : left;
+			this->score_info_right = rtl ? right : left + score_info_width;
 
-				this->score_detail_left  = rtl ? left : right - score_detail_width;
-				this->score_detail_right = rtl ? left + score_detail_width : right;
+			this->score_detail_left = rtl ? left : right - score_detail_width;
+			this->score_detail_right = rtl ? left + score_detail_width : right;
 
-				this->bar_left  = left + (rtl ? score_detail_width : score_info_width) + 5;
-				this->bar_right = this->bar_left + this->bar_width;
-				break;
+			this->bar_left = left + (rtl ? score_detail_width : score_info_width) + 5;
+			this->bar_right = this->bar_left + this->bar_width;
+			break;
 		}
 	}
 
@@ -1402,9 +1696,9 @@ struct PerformanceRatingDetailWindow : Window {
 		int colour_notdone = _colour_gradient[COLOUR_RED][4];
 
 		/* Draw all the score parts */
-		int val    = _score_part[company][score_type];
+		int val = _score_part[company][score_type];
 		int needed = _score_info[score_type].needed;
-		int score  = _score_info[score_type].score;
+		int score = _score_info[score_type].score;
 
 		/* SCORE_TOTAL has his own rules ;) */
 		if (score_type == SCORE_TOTAL) {
@@ -1412,7 +1706,7 @@ struct PerformanceRatingDetailWindow : Window {
 			needed = SCORE_MAX;
 		}
 
-		uint bar_top  = r.top + WD_MATRIX_TOP;
+		uint bar_top = r.top + WD_MATRIX_TOP;
 		uint text_top = bar_top + 2;
 
 		DrawString(this->score_info_left, this->score_info_right, text_top, STR_PERFORMANCE_DETAIL_VEHICLES + score_type);
@@ -1426,7 +1720,8 @@ struct PerformanceRatingDetailWindow : Window {
 		bool rtl = _current_text_dir == TD_RTL;
 		if (rtl) {
 			x = this->bar_right - x;
-		} else {
+		}
+		else {
 			x = this->bar_left + x;
 		}
 
@@ -1446,15 +1741,15 @@ struct PerformanceRatingDetailWindow : Window {
 		SetDParam(0, val);
 		SetDParam(1, needed);
 		switch (score_type) {
-			case SCORE_MIN_PROFIT:
-			case SCORE_MIN_INCOME:
-			case SCORE_MAX_INCOME:
-			case SCORE_MONEY:
-			case SCORE_LOAN:
-				DrawString(this->score_detail_left, this->score_detail_right, text_top, STR_PERFORMANCE_DETAIL_AMOUNT_CURRENCY);
-				break;
-			default:
-				DrawString(this->score_detail_left, this->score_detail_right, text_top, STR_PERFORMANCE_DETAIL_AMOUNT_INT);
+		case SCORE_MIN_PROFIT:
+		case SCORE_MIN_INCOME:
+		case SCORE_MAX_INCOME:
+		case SCORE_MONEY:
+		case SCORE_LOAN:
+			DrawString(this->score_detail_left, this->score_detail_right, text_top, STR_PERFORMANCE_DETAIL_AMOUNT_CURRENCY);
+			break;
+		default:
+			DrawString(this->score_detail_left, this->score_detail_right, text_top, STR_PERFORMANCE_DETAIL_AMOUNT_INT);
 		}
 	}
 

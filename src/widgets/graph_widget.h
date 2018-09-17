@@ -25,10 +25,12 @@ enum GraphLegendWidgets {
 
 /** Widgets of the #OperatingProfitGraphWindow class, #IncomeGraphWindow class, #DeliveredCargoGraphWindow class, and #CompanyValueGraphWindow class. */
 enum CompanyValueWidgets {
-	WID_CV_KEY_BUTTON, ///< Key button.
-	WID_CV_BACKGROUND, ///< Background of the window.
-	WID_CV_GRAPH,      ///< Graph itself.
-	WID_CV_RESIZE,     ///< Resize button.
+	WID_CV_KEY_BUTTON,		///< Key button.
+	WID_CV_BACKGROUND,		///< Background of the window.
+	WID_CV_GRAPH,			///< Graph itself.
+	WID_CV_SHOW_H_SCROLL,	///< Show horizontal scrollbar panel.
+	WID_CV_H_SCROLL,			///< Horizontal scrollbar.
+	WID_CV_RESIZE,			///< Resize button.
 };
 
 /** Widget of the #PerformanceHistoryGraphWindow class. */

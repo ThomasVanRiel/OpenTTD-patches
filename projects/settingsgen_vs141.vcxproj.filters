@@ -29,4 +29,7 @@
     <ClInclude Include="..\src\string_func.h" />
     <ClInclude Include="..\src\strings_type.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>
